@@ -9,10 +9,10 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"time"
+	// "time"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-	"github.com/satori/go.uuid"
+	// "github.com/satori/go.uuid"
 )
 
 /**
@@ -70,7 +70,7 @@ func main()  {
  * @param  {[type]} t *ShanChainAPI) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error [description]
  * @return {[type]}   [description]
  */
-func (t *ShanChainAPI) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error)  {
+func (t *ShanChainAPI) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error)  {
 	if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 2")
 	}
@@ -104,12 +104,13 @@ func (t *ShanChainAPI) Init(stub *shim.ChaincodeStub, function string, args []st
  * @param  {[type]} t *ShanChainAPI) Invoke(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error [description]
  * @return {[type]}   [description]
  */
-func (t *ShanChainAPI) Invoke(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
+func (t *ShanChainAPI) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	if function == "createUser" {
 		return t.createUser(stub, args)
-	} else if function == "transfer" {
-		return t.transfer(stub, args)
-	}
+	} 
+	// else if function == "transfer" {
+	// 	return t.transfer(stub, args)
+	// }
 	return nil, errors.New("Received unknown function invocation")
 }
 
@@ -118,13 +119,23 @@ func (t *ShanChainAPI) Invoke(stub *shim.ChaincodeStub, function string, args []
  * @param  {[type]} t *ShanChainAPI) Query(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error [description]
  * @return {[type]}   [description]
  */
-func (t *ShanChainAPI) Query(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error)  {
+func (t *ShanChainAPI) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error)  {
 	argsLength := len(args)
 	if function == "getRoot" {
 		if argsLength != 0 {
 			return nil, errors.New("Incorrect number of arguments. Expecting 0")
 		}
 		_, rootBytes, err := getRoot(stub)
+		if err != nil {
+			return nil, err
+		}
+		return rootBytes, nil
+	} else if function == "getUser"{
+		if argsLength != 1 {
+			return nil, errors.New("Incorrect number of arguments. Expecting 1")
+		}
+		id := args[0]
+		_, rootBytes, err := getUser(stub, id)
 		if err != nil {
 			return nil, err
 		}
@@ -138,7 +149,7 @@ func (t *ShanChainAPI) Query(stub *shim.ChaincodeStub, function string, args []s
  * @param  {[type]} t *ShanChainAPI) createUser(stub *shim.ChaincodeStub, args []string) ([]byte, error [description]
  * @return {[type]}   [description]
  */
-func (t *ShanChainAPI) createUser(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+func (t *ShanChainAPI) createUser(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 3 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 3")
 	}
@@ -175,83 +186,83 @@ func (t *ShanChainAPI) createUser(stub *shim.ChaincodeStub, args []string) ([]by
  * @param  {[type]} t *             ShanChainAPI) exchange(stub *shim.ChaincodeStub, args []string) ([]byte, error [description]
  * @return {[type]}   [description]
  */
-func (t * ShanChainAPI) exchange(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+// func (t * ShanChainAPI) exchange(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	
-	if len(args) != 3 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 3")
-	}
-	var (
-		root Root
-		user User
-		number int
-		accepterID string
-		step int
-		err error
-		transaction Transaction
-		tsBytes []byte
-	)
-	accepterID = args[0]
-	number, err = strconv.Atoi(args[1])
-	if err != nil {
-		return nil,errors.New("want Integer number")
-	}
-	step, err = strconv.Atoi(args[2])
-	if err != nil {
-		return nil,errors.New("want Integer number")
-	}
-	root, _, err = getRoot(stub)
-	if err != nil {
-		return nil,errors.New("get root errors")
-	}
-	if root.RestIntegral < number {
-		return nil,errors.New("Root 剩余善圆不足")
-	}
-	user, _, err = getUser(stub, accepterID)
-	if err != nil {
-		return nil,errors.New("get user errors")
-	}
+// 	if len(args) != 3 {
+// 		return nil, errors.New("Incorrect number of arguments. Expecting 3")
+// 	}
+// 	var (
+// 		root Root
+// 		user User
+// 		number int
+// 		accepterID string
+// 		step int
+// 		err error
+// 		transaction Transaction
+// 		tsBytes []byte
+// 	)
+// 	accepterID = args[0]
+// 	number, err = strconv.Atoi(args[1])
+// 	if err != nil {
+// 		return nil,errors.New("want Integer number")
+// 	}
+// 	step, err = strconv.Atoi(args[2])
+// 	if err != nil {
+// 		return nil,errors.New("want Integer number")
+// 	}
+// 	root, _, err = getRoot(stub)
+// 	if err != nil {
+// 		return nil,errors.New("get root errors")
+// 	}
+// 	if root.RestIntegral < number {
+// 		return nil,errors.New("Root 剩余善圆不足")
+// 	}
+// 	user, _, err = getUser(stub, accepterID)
+// 	if err != nil {
+// 		return nil,errors.New("get user errors")
+// 	}
 
-	root.RestIntegral = root.RestIntegral - number
-	user.Integral = user.Integral + number
+// 	root.RestIntegral = root.RestIntegral - number
+// 	user.Integral = user.Integral + number
 
-	err = writeRoot(stub, root)
-	if err != nil {
-		root.RestIntegral = root.RestIntegral - number
-		user.Integral = user.Integral - number
-		return nil, errors.New("write root errors" + err.Error())
-	}
-	err = writeUser(stub, user)
-	if err != nil {
-		root.RestIntegral = root.RestIntegral - number
-		user.Integral = user.Integral - number
-		err = writeRoot(stub, root)
-		if err != nil {
-			return nil, errors.New("roll down errors" + err.Error())
-		}
-		return nil, err
-	}
+// 	err = writeRoot(stub, root)
+// 	if err != nil {
+// 		root.RestIntegral = root.RestIntegral - number
+// 		user.Integral = user.Integral - number
+// 		return nil, errors.New("write root errors" + err.Error())
+// 	}
+// 	err = writeUser(stub, user)
+// 	if err != nil {
+// 		root.RestIntegral = root.RestIntegral - number
+// 		user.Integral = user.Integral - number
+// 		err = writeRoot(stub, root)
+// 		if err != nil {
+// 			return nil, errors.New("roll down errors" + err.Error())
+// 		}
+// 		return nil, err
+// 	}
 	
-	var domain byte
-	id := uuid.NewV2(domain)
-	transaction = Transaction{
-		Step : step,
-		Integral : number,
-		FromType : 0,
-		FromID : "0001",
-		ToType : 1,
-		ToID : accepterID,
-		Time : time.Now().Unix()}
+// 	var domain byte
+// 	id := uuid.NewV2(domain)
+// 	transaction = Transaction{
+// 		Step : step,
+// 		Integral : number,
+// 		FromType : 0,
+// 		FromID : "0001",
+// 		ToType : 1,
+// 		ToID : accepterID,
+// 		Time : time.Now().Unix()}
 	
-	err = writeTransaction(stub, transaction)
-	if err != nil {
-		return nil, errors.New("write transaction Error" + err.Error())
-	}
-	tsBytes, err = json.Marshal(&transaction)
-	if err != nil {
-		return nil, err
-	}
-	return nil, nil
-}
+// 	err = writeTransaction(stub, transaction)
+// 	if err != nil {
+// 		return nil, errors.New("write transaction Error" + err.Error())
+// 	}
+// 	tsBytes, err = json.Marshal(&transaction)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return nil, nil
+// }
 
 
 /**
@@ -259,12 +270,12 @@ func (t * ShanChainAPI) exchange(stub *shim.ChaincodeStub, args []string) ([]byt
  * @param  {[type]} t *ShanChainAPI) transfer(stub *shim.ChaincodeStub, args []string) ([]byte, error [description]
  * @return {[type]}   [description]
  */
-func (t *ShanChainAPI) transfer(stub *shim.ChaincodeStub, args []string) ([]byte, error){
-	if len(args) != 3 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 3")
-	}
-	return nil, nil
-}
+// func (t *ShanChainAPI) transfer(stub shim.ChaincodeStubInterface, args []string) ([]byte, error){
+// 	if len(args) != 3 {
+// 		return nil, errors.New("Incorrect number of arguments. Expecting 3")
+// 	}
+// 	return nil, nil
+// }
 
 
 /**
@@ -273,7 +284,7 @@ func (t *ShanChainAPI) transfer(stub *shim.ChaincodeStub, args []string) ([]byte
  * @param  {[type]} root Root)               (error        [description]
  * @return {[type]}      [description]
  */
-func writeRoot(stub *shim.ChaincodeStub, root Root) (error) {
+func writeRoot(stub shim.ChaincodeStubInterface, root Root) (error) {
 	rootBytes, err := json.Marshal(root)
 	if err != nil {
 		return err
@@ -291,7 +302,7 @@ func writeRoot(stub *shim.ChaincodeStub, root Root) (error) {
  * @param  {[type]} stub *shim.ChaincodeStub) (Root, []byte, error [description]
  * @return {[type]}      [description]
  */
-func getRoot(stub *shim.ChaincodeStub) (Root, []byte, error) {
+func getRoot(stub shim.ChaincodeStubInterface) (Root, []byte, error) {
 	var root Root
 	rootBytyes, err := stub.GetState("root")
 	if err != nil {
@@ -311,12 +322,13 @@ func getRoot(stub *shim.ChaincodeStub) (Root, []byte, error) {
  * @param  {[type]} user User)               (error        [description]
  * @return {[type]}      [description]
  */
-func writeUser(stub *shim.ChaincodeStub, user User) (error) {
+func writeUser(stub shim.ChaincodeStubInterface, user User) (error) {
+	id := user.ID
 	userBytes, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
-	err = stub.PutState(user.ID, userBytes)
+	err = stub.PutState(id, userBytes)
 	if err != nil {
 		return errors.New("PutState Error" + err.Error())
 	}
@@ -329,7 +341,7 @@ func writeUser(stub *shim.ChaincodeStub, user User) (error) {
  * @param  {[type]} id   string)             (User,        []byte, error [description]
  * @return {[type]}      [description]
  */
-func getUser(stub *shim.ChaincodeStub, id string) (User, []byte, error) {
+func getUser(stub shim.ChaincodeStubInterface, id string) (User, []byte, error) {
 	var user User
 	userBytes, err := stub.GetState(id)
 	if err != nil {
@@ -349,7 +361,7 @@ func getUser(stub *shim.ChaincodeStub, id string) (User, []byte, error) {
  * @param  {[type]} transaction Transaction)        (error        [description]
  * @return {[type]}             [description]
  */
-func writeTransaction(stub *shim.ChaincodeStub,transaction Transaction) (error) {
+func writeTransaction(stub shim.ChaincodeStubInterface,transaction Transaction) (error) {
 	var tsID string
 	tsBytes, err := json.Marshal(&transaction)
 	if err != nil {
