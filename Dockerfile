@@ -3,6 +3,4 @@
 FROM registry.cn-hangzhou.aliyuncs.com/shanchain/nodejs-image
 #FROM registry-internal.cn-hangzhou.aliyuncs.com/shanchain/nodejs-image
 MAINTAINER snow "xuefeng.zhao@shanchain.com"
-ADD logger /logger
-CMD ["node", "/logger/bin/www", "daemon off;"]
 EXPOSE 80
