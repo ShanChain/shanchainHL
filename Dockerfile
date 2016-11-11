@@ -3,4 +3,4 @@
 FROM registry.cn-hangzhou.aliyuncs.com/shanchain/hyperledger-baseimage
 #FROM registry-internal.cn-hangzhou.aliyuncs.com/shanchain/hyperledger-baseimage
 MAINTAINER snow "xuefeng.zhao@shanchain.com"
-EXPOSE 80
+ADD /shanchainHL /opt/gopath/src/github.com/hyperledger/fabric
